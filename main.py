@@ -9,12 +9,39 @@
 #
 #
 
+import pandas as pd
+import numpy as np
+
 
 # "1. Create training and test set:
 # "    Split the data into a training and test set. Each of these should have about 2,300 instances,
 # "    and each should have about 40% spam, 60% not-spam, to reflect the statistics of the full
 # "    data set. Since you are assuming each feature is independent of all others, here it is not
 # "    necessary to standardize the features.
+class Data:
+    def __init__(self):
+        self.DATA = "./spambase/spambase.data"
+        self.NAMES = "./spambase/spambase.names"
+
+        self.train, self.test = self.read_data()
+        self.names = self.read_names()
+
+    def read_data(self):
+        # get all of the data
+        all_data = pd.read_csv(self.DATA).to_numpy()
+
+        # mix up all of the data since it is divided into spam/not spam
+        np.random.shuffle(all_data)
+
+        # there are 4600 items total, separate in to 2 stacks of 2300
+        end = len(all_data)
+        mid = int(end/2)
+        return all_data[0:mid], all_data[mid:end]
+
+    def read_names(self):
+        # get all the attribute names
+        names = pd.read_csv(self.NAMES, comment="|").to_numpy()
+        return names
 
 
 # "2. Create probabilistic model. (Write your own code to do this.)
@@ -57,6 +84,11 @@
 
 def main():
     print("Program 2")
+
+    data = Data()
+    print(len(data.train))
+    print(len(data.test))
+    print(len(data.names))
 
 
 if __name__ == '__main__':
