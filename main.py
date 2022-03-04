@@ -19,11 +19,12 @@ import numpy as np
 # "    data set. Since you are assuming each feature is independent of all others, here it is not
 # "    necessary to standardize the features.
 class Data:
-    def __init__(self):
-        self.DATA = "./spambase/spambase.data"
-        self.NAMES = "./spambase/spambase.names"
+    DATA = "./spambase/spambase.data"
+    NAMES = "./spambase/spambase.names"
 
-        self.train, self.test = self.read_data()
+    def __init__(self):
+        self.train, self.train_truth, \
+            self.test, self.test_truth = self.read_data()
         self.names = self.read_names()
 
     def read_data(self):
@@ -33,10 +34,17 @@ class Data:
         # mix up all of the data since it is divided into spam/not spam
         np.random.shuffle(all_data)
 
-        # there are 4600 items total, separate in to 2 stacks of 2300
-        end = len(all_data)
+        # the last element of each row is the truth value
+        truth_values = all_data[:, -1:]
+
+        # and the first 56 are the attribute values
+        attributes = all_data[:, :-1]
+
+        # there are 4600 items total, which will be separated into 2 stacks of 2300
+        end = len(truth_values)  # or attributes, they're the same length
         mid = int(end/2)
-        return all_data[0:mid], all_data[mid:end]
+        return attributes[0:mid], truth_values[0:mid], \
+            attributes[mid:end], truth_values[mid:end]
 
     def read_names(self):
         # get all the attribute names
@@ -87,8 +95,14 @@ def main():
 
     data = Data()
     print(len(data.train))
+    print(len(data.train_truth))
     print(len(data.test))
+    print(len(data.test_truth))
     print(len(data.names))
+    print(len(data.train_truth[89]))
+    print(data.train)
+    print(data.test_truth)
+
 
 
 if __name__ == '__main__':
