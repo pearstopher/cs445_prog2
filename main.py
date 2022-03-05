@@ -97,7 +97,14 @@ class Model(Data):
         return train_mean, test_mean
 
     def compute_stds(self):
-        return 0, 0
+        train_std = np.sum(self.train, axis=0)
+        test_std = np.sum(self.test, axis=0)
+
+        train_std = np.where(train_std > 0.0001, train_std, 0.0001)
+        test_std = np.where(test_std > 0.0001, test_std, 0.0001)
+
+        # each t_s contains the nonzero standard deviation of each of the 57 attributes
+        return train_std, test_std
 
 
 # "3. Run Naive Bayes on the test data. (Write your own code to do this.)
@@ -144,6 +151,8 @@ def main():
     print(data.test_prior)
     print(len(data.train_mean))
     print(len(data.test_mean))
+    print(data.test_std)
+    print(data.train_std)
 
 
 if __name__ == '__main__':
