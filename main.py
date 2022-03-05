@@ -60,6 +60,44 @@ class Data:
 # "      training set of the values given each class. If any of the features has zero standard
 # "      deviation, assign it a “minimal” standard deviation (e.g., 0.0001) to avoid a divide-by-
 # "      zero error in Gaussian Naive Bayes.
+class Model(Data):
+    def __init__(self):
+        super().__init__()
+
+        # I'm well aware that it would be 3x more efficient to not compute these separately
+        self.train_prior, self.test_prior = self.compute_priors()
+        self.train_mean, self.test_mean = self.compute_means()
+        self.train_std, self.test_std = self.compute_stds()
+
+    def compute_priors(self):
+        train_count = np.count_nonzero(self.train_truth)
+        train_total = len(self.train_truth)
+        test_count = np.count_nonzero(self.test_truth)
+        test_total = len(self.train_truth)
+
+        train_prior = (train_count/train_total,
+                       (train_total - train_count)/train_total)
+        test_prior = (test_count/test_total,
+                      (test_total - test_count)/test_total)
+
+        # t_p[0] = prior probability of 0
+        # t_p[1] = prior probability of 1
+        return train_prior, test_prior
+
+    def compute_means(self):
+        train_sum = np.sum(self.train, axis=0)
+        train_len = len(self.train)
+        test_sum = np.sum(self.test, axis=0)
+        test_len = len(self.test)
+
+        train_mean = train_sum / train_len
+        test_mean = test_sum / test_len
+
+        # each t_m contains the mean of each of the 57 attributes
+        return train_mean, test_mean
+
+    def compute_stds(self):
+        return 0, 0
 
 
 # "3. Run Naive Bayes on the test data. (Write your own code to do this.)
@@ -93,16 +131,19 @@ class Data:
 def main():
     print("Program 2")
 
-    data = Data()
+    data = Model()
     print(len(data.train))
     print(len(data.train_truth))
     print(len(data.test))
     print(len(data.test_truth))
     print(len(data.names))
-    print(len(data.train_truth[89]))
+    print(len(data.train[89]))
     print(data.train)
     print(data.test_truth)
-
+    print(data.train_prior)
+    print(data.test_prior)
+    print(len(data.train_mean))
+    print(len(data.test_mean))
 
 
 if __name__ == '__main__':
