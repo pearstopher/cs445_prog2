@@ -64,9 +64,7 @@ class Model(Data):
 
     def __init__(self):
         super().__init__()
-
-        # I'm well aware that it would be 3x more efficient to not compute these separately
-        # for each of these arrays, [0] and [1] represent the info for class 0 and 1, respectively
+        # for each of these arrays, indexes [0] and [1] represent classes 0 and 1
         self.train_prior = self.compute_priors()
         self.train_mean = self.compute_means()
         self.train_std = self.compute_stds()
@@ -89,8 +87,8 @@ class Model(Data):
         for t, tt in zip(self.train, self.train_truth):
             train_means[int(tt)] += t
             length[int(tt)] += 1
-
         train_means /= length
+
         # [0] = mean of class 0
         # [1] = mean of class 1
         return train_means
@@ -105,6 +103,7 @@ class Model(Data):
         train_std[0] = np.std(split[0], axis=0)
         train_std[1] = np.std(split[1], axis=0)
 
+        # (make sure the standard deviation is never zero)
         train_std = np.where(train_std > 0.0001, train_std, 0.0001)
 
         # [0] = nonzero standard deviation of class 0
@@ -133,12 +132,9 @@ class Model(Data):
 # "
 # "          = class₍NB₎(x) = argmax₍class₎[log P(class) + log P(xᵢ|class) + … + + P(xₙ|class)]
 # "
-# "
-# "
 class NaiveBayes(Model):
     def __init__(self):
         super().__init__()
-
         self.test_probabilities = self.compute_probabilities()
         self.test_classes = self.predict_classes()
 
@@ -147,7 +143,6 @@ class NaiveBayes(Model):
         for x in range(len(self.test)):
             for j in range(2):
                 probabilities[j].append([self.attribute_class_probability(x, i, j) for i in range(57)])
-                # print(probabilities[j][-1])
         return probabilities
 
     # "P(xᵢ|cⱼ) = N(xᵢ;μ₍ᵢ,cⱼ₎,σ₍ᵢ,cⱼ₎)
@@ -172,6 +167,7 @@ class NaiveBayes(Model):
 
         for p0, p1 in zip(self.test_probabilities[0], self.test_probabilities[1]):
             total = [math.log(self.train_prior[0]), math.log(self.train_prior[1])]
+
             for probability in p0:
                 if probability != 0:
                     total[0] += math.log(probability)
@@ -179,16 +175,9 @@ class NaiveBayes(Model):
                 if probability != 0:
                     total[1] += math.log(probability)
 
-            # total[0] = math.log(total[0])
-            # total[1] = math.log(total[1])
-
             classes.append(0) if total[0] > total[1] else classes.append(1)
 
         return classes
-
-
-
-
 
 
 # "include […] your results:
@@ -199,18 +188,12 @@ class NaiveBayes(Model):
 def main():
     print("Program 2")
 
-    data = NaiveBayes()
+    nb = NaiveBayes()
 
-    # print(data.train)
-    # print(data.train_truth)
-    # print(data.test_probabilities)
-
-    print(data.test_classes)
-    print(data.test_truth.reshape(1, 2300))
 
     total = 0
     correct = 0
-    for i, j in zip(data.test_classes, data.test_truth):
+    for i, j in zip(nb.test_classes, nb.test_truth):
         if i == j:
             correct += 1
         total += 1
