@@ -11,6 +11,7 @@
 
 import pandas as pd
 import numpy as np
+import math
 
 
 # "1. Create training and test set:
@@ -37,7 +38,7 @@ class Data:
         # the last element of each row is the truth value
         truth_values = all_data[:, -1:]
 
-        # and the first 56 are the attribute values
+        # and the first 57 are the attribute values
         attributes = all_data[:, :-1]
 
         # there are 4600 items total, which will be separated into 2 stacks of 2300
@@ -61,17 +62,22 @@ class Data:
 # "      deviation, assign it a “minimal” standard deviation (e.g., 0.0001) to avoid a divide-by-
 # "      zero error in Gaussian Naive Bayes.
 class Model(Data):
+    # train_mean = np.empty(0, 2)
+    # train_std = np.empty(0, 2)
+
     def __init__(self):
         super().__init__()
 
         # I'm well aware that it would be 3x more efficient to not compute these separately
-        self.train_prior, self.test_prior = self.compute_priors()
-        self.train_mean, self.test_mean = self.compute_means()
-        self.train_std, self.test_std = self.compute_stds()
+        # for each of these arrays, [0] and [1] represent the info for class 0 and 1, respectively
+        self.train_prior, test_prior = self.compute_priors()
+        self.train_mean = self.compute_means()
+        self.train_std = self.compute_stds()
 
     def compute_priors(self):
         train_count = np.count_nonzero(self.train_truth)
         train_total = len(self.train_truth)
+
         test_count = np.count_nonzero(self.test_truth)
         test_total = len(self.train_truth)
 
@@ -82,29 +88,37 @@ class Model(Data):
 
         # t_p[0] = prior probability of 0
         # t_p[1] = prior probability of 1
+        # (might not need test_prior)
         return train_prior, test_prior
 
     def compute_means(self):
-        train_sum = np.sum(self.train, axis=0)
-        train_len = len(self.train)
-        test_sum = np.sum(self.test, axis=0)
-        test_len = len(self.test)
+        train_means = np.zeros((2, len(self.train[0])))
+        length = np.zeros((2, 1))
 
-        train_mean = train_sum / train_len
-        test_mean = test_sum / test_len
+        for t, tt in zip(self.train, self.train_truth):
+            train_means[int(tt)] += t
+            length[int(tt)] += 1
 
-        # each t_m contains the mean of each of the 57 attributes
-        return train_mean, test_mean
+        train_means /= length
+        # [0] = mean of class 0
+        # [1] = mean of class 1
+        return train_means
 
     def compute_stds(self):
-        train_std = np.sum(self.train, axis=0)
-        test_std = np.sum(self.test, axis=0)
+        split = [[], []]
+        train_std = np.zeros((2, 57))
+
+        for t, tt in zip(self.train, self.train_truth):
+            split[int(tt)].append(t)
+
+        train_std[0] = np.std(split[0], axis=0)
+        train_std[1] = np.std(split[1], axis=0)
 
         train_std = np.where(train_std > 0.0001, train_std, 0.0001)
-        test_std = np.where(test_std > 0.0001, test_std, 0.0001)
 
-        # each t_s contains the nonzero standard deviation of each of the 57 attributes
-        return train_std, test_std
+        # [0] = nonzero standard deviation of class 0
+        # [1] = nonzero standard deviation of class 1
+        return train_std
 
 
 # "3. Run Naive Bayes on the test data. (Write your own code to do this.)
@@ -128,6 +142,32 @@ class Model(Data):
 # "
 # "          = class₍NB₎(x) = argmax₍class₎[log P(class) + log P(xᵢ|class) + … + + P(xₙ|class)]
 # "
+# "
+# "
+class NaiveBayes(Model):
+    def __init__(self):
+        super().__init__()
+
+    # "P(xᵢ|cⱼ) = N(xᵢ;μ₍ᵢ,cⱼ₎,σ₍ᵢ,cⱼ₎)
+    # "
+    # "# " where μi,c is the mean of feature i given the class c, and σi,c is
+    # # " the standard deviation of feature i given the class c
+    #
+    # def attribute_class_probability(self, x, c):  # x_i, c_j
+    #    p = self.probability_density(self.train[x], self.
+
+
+
+
+    # "N(x;μ,σ) = 1/√(2πσ) × e^-[(x - μ)/2σ²]
+    # "
+    # "Note: N is the probability density function, but can be used analogously to
+    # "probability in Naive Bayes calculations.
+    @staticmethod
+    def probability_density(x, mu, sigma):
+        return (1 / math.sqrt(2*math.pi*sigma)) * math.exp(-((x - mu)/(2*(sigma**2))))
+
+
 
 
 # "include […] your results:
@@ -139,20 +179,11 @@ def main():
     print("Program 2")
 
     data = Model()
-    print(len(data.train))
-    print(len(data.train_truth))
-    print(len(data.test))
-    print(len(data.test_truth))
-    print(len(data.names))
-    print(len(data.train[89]))
-    print(data.train)
-    print(data.test_truth)
-    print(data.train_prior)
-    print(data.test_prior)
-    print(len(data.train_mean))
-    print(len(data.test_mean))
-    print(data.test_std)
+
+    # print(data.train)
+    # print(data.train_truth)
     print(data.train_std)
+
 
 
 if __name__ == '__main__':
