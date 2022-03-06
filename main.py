@@ -42,15 +42,14 @@ class Data:
         attributes = all_data[:, :-1]
 
         # there are 4600 items total, which will be separated into 2 stacks of 2300
-        end = len(truth_values)  # or attributes, they're the same length
+        end = len(truth_values)  # or len(attributes), they're the same length
         mid = int(end/2)
         return attributes[0:mid], truth_values[0:mid], \
             attributes[mid:end], truth_values[mid:end]
 
     def read_names(self):
         # get all the attribute names
-        names = pd.read_csv(self.NAMES, comment="|").to_numpy()
-        return names
+        return pd.read_csv(self.NAMES, comment="|").to_numpy()
 
 
 # "2. Create probabilistic model. (Write your own code to do this.)
@@ -62,15 +61,13 @@ class Data:
 # "      deviation, assign it a “minimal” standard deviation (e.g., 0.0001) to avoid a divide-by-
 # "      zero error in Gaussian Naive Bayes.
 class Model(Data):
-    # train_mean = np.empty(0, 2)
-    # train_std = np.empty(0, 2)
 
     def __init__(self):
         super().__init__()
 
         # I'm well aware that it would be 3x more efficient to not compute these separately
         # for each of these arrays, [0] and [1] represent the info for class 0 and 1, respectively
-        self.train_prior, test_prior = self.compute_priors()
+        self.train_prior = self.compute_priors()
         self.train_mean = self.compute_means()
         self.train_std = self.compute_stds()
 
@@ -78,18 +75,12 @@ class Model(Data):
         train_count = np.count_nonzero(self.train_truth)
         train_total = len(self.train_truth)
 
-        test_count = np.count_nonzero(self.test_truth)
-        test_total = len(self.train_truth)
-
         train_prior = (train_count/train_total,
                        (train_total - train_count)/train_total)
-        test_prior = (test_count/test_total,
-                      (test_total - test_count)/test_total)
 
         # t_p[0] = prior probability of 0
         # t_p[1] = prior probability of 1
-        # (might not need test_prior)
-        return train_prior, test_prior
+        return train_prior
 
     def compute_means(self):
         train_means = np.zeros((2, len(self.train[0])))
