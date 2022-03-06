@@ -148,16 +148,25 @@ class NaiveBayes(Model):
     def __init__(self):
         super().__init__()
 
+        self.test_probabilities = self.compute_probabilities()
+
+    def compute_probabilities(self):
+        probabilities = [[], []]
+
+        for _ in range(len(self.test)):
+            for j in range(2):
+                probabilities[j].append([self.attribute_class_probability(i, j) for i in range(57)])
+
+        return probabilities
+
+
     # "P(xᵢ|cⱼ) = N(xᵢ;μ₍ᵢ,cⱼ₎,σ₍ᵢ,cⱼ₎)
     # "
     # "# " where μi,c is the mean of feature i given the class c, and σi,c is
     # # " the standard deviation of feature i given the class c
     #
-    # def attribute_class_probability(self, x, c):  # x_i, c_j
-    #    p = self.probability_density(self.train[x], self.
-
-
-
+    def attribute_class_probability(self, i, j):  # x_i, c_j
+        return self.probability_density(self.train[j][i], self.train_mean[j][i], self.train_std[j][i])
 
     # "N(x;μ,σ) = 1/√(2πσ) × e^-[(x - μ)/2σ²]
     # "
@@ -178,11 +187,11 @@ class NaiveBayes(Model):
 def main():
     print("Program 2")
 
-    data = Model()
+    data = NaiveBayes()
 
     # print(data.train)
     # print(data.train_truth)
-    print(data.train_std)
+    print(data.test_probabilities)
 
 
 
