@@ -12,6 +12,9 @@
 import pandas as pd
 import numpy as np
 import math
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.svm import SVC
 
 
 # "1. Create training and test set:
@@ -171,9 +174,13 @@ class NaiveBayes(Model):
             for probability in p0:
                 if probability != 0:
                     total[0] += math.log(probability)
+                else:
+                    total[0] -= 1000
             for probability in p1:
                 if probability != 0:
                     total[1] += math.log(probability)
+                else:
+                    total[1] -= 1000
 
             classes.append(0) if total[0] > total[1] else classes.append(1)
 
@@ -190,7 +197,6 @@ def main():
 
     nb = NaiveBayes()
 
-
     total = 0
     correct = 0
     for i, j in zip(nb.test_classes, nb.test_truth):
@@ -202,8 +208,14 @@ def main():
     print("Right:", correct)
     print("Accuracy:", correct/total)
 
-    # print(data.test_probabilities)
-
+    # create and display confusion matrix
+    # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html
+    clf = SVC(random_state=0)
+    clf.fit(nb.test_truth, nb.test_classes)
+    cm = confusion_matrix(nb.test_truth, nb.test_classes)
+    display = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=clf.classes_)
+    display.plot(cmap="RdPu")
+    plt.show()
 
 
 if __name__ == '__main__':
