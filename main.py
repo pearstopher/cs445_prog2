@@ -149,24 +149,23 @@ class NaiveBayes(Model):
         super().__init__()
 
         self.test_probabilities = self.compute_probabilities()
+        self.test_classes = self.predict_classes()
 
     def compute_probabilities(self):
         probabilities = [[], []]
-
-        for _ in range(len(self.test)):
+        for x in range(len(self.test)):
             for j in range(2):
-                probabilities[j].append([self.attribute_class_probability(i, j) for i in range(57)])
-
+                probabilities[j].append([self.attribute_class_probability(x, i, j) for i in range(57)])
+                # print(probabilities[j][-1])
         return probabilities
-
 
     # "P(xᵢ|cⱼ) = N(xᵢ;μ₍ᵢ,cⱼ₎,σ₍ᵢ,cⱼ₎)
     # "
     # "# " where μi,c is the mean of feature i given the class c, and σi,c is
     # # " the standard deviation of feature i given the class c
     #
-    def attribute_class_probability(self, i, j):  # x_i, c_j
-        return self.probability_density(self.train[j][i], self.train_mean[j][i], self.train_std[j][i])
+    def attribute_class_probability(self, x, i, j):  # x_i, c_j
+        return self.probability_density(self.test[x][i], self.train_mean[j][i], self.train_std[j][i])
 
     # "N(x;μ,σ) = 1/√(2πσ) × e^-[(x - μ)/2σ²]
     # "
@@ -175,6 +174,28 @@ class NaiveBayes(Model):
     @staticmethod
     def probability_density(x, mu, sigma):
         return (1 / math.sqrt(2*math.pi*sigma)) * math.exp(-((x - mu)/(2*(sigma**2))))
+
+    # "class₍NB₎(x) = argmax₍class₎ log[P(class) Πᵢ P(xᵢ|class)]
+    def predict_classes(self):
+        classes = []
+
+        for p0, p1 in zip(self.test_probabilities[0], self.test_probabilities[1]):
+            total = [math.log(self.train_prior[0]), math.log(self.train_prior[1])]
+            for probability in p0:
+                if probability != 0:
+                    total[0] += math.log(probability)
+            for probability in p1:
+                if probability != 0:
+                    total[1] += math.log(probability)
+
+            # total[0] = math.log(total[0])
+            # total[1] = math.log(total[1])
+
+            classes.append(0) if total[0] > total[1] else classes.append(1)
+
+        return classes
+
+
 
 
 
@@ -191,7 +212,23 @@ def main():
 
     # print(data.train)
     # print(data.train_truth)
-    print(data.test_probabilities)
+    # print(data.test_probabilities)
+
+    print(data.test_classes)
+    print(data.test_truth.reshape(1, 2300))
+
+    total = 0
+    correct = 0
+    for i, j in zip(data.test_classes, data.test_truth):
+        if i == j:
+            correct += 1
+        total += 1
+
+    print("Total:", total)
+    print("Right:", correct)
+    print("Accuracy:", correct/total)
+
+    # print(data.test_probabilities)
 
 
 
