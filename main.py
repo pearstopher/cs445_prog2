@@ -154,7 +154,10 @@ class NaiveBayes(Model):
     # # " the standard deviation of feature i given the class c
     #
     def attribute_class_probability(self, x, i, j):  # x_i, c_j
-        return self.probability_density(self.test[x][i], self.train_mean[j][i], self.train_std[j][i])
+        p = self.probability_density(self.test[x][i], self.train_mean[j][i], self.train_std[j][i])
+
+        # just like earlier, need to set some sort of nonzero minimum for this
+        return p if p > 0.0001 else 0.0001
 
     # "N(x;μ,σ) = 1/√(2πσ) × e^-[(x - μ)/2σ²]
     # "
@@ -162,25 +165,18 @@ class NaiveBayes(Model):
     # "probability in Naive Bayes calculations.
     @staticmethod
     def probability_density(x, mu, sigma):
-        return (1 / math.sqrt(2*math.pi*sigma)) * math.exp(-((x - mu)/(2*(sigma**2))))
+        return (1 / math.sqrt(2*math.pi*sigma)) * math.exp(-((abs(x - mu))/(2*(sigma**2))))
 
     # "class₍NB₎(x) = argmax₍class₎ log[P(class) Πᵢ P(xᵢ|class)]
     def predict_classes(self):
         classes = []
-
         for p0, p1 in zip(self.test_probabilities[0], self.test_probabilities[1]):
             total = [math.log(self.train_prior[0]), math.log(self.train_prior[1])]
 
             for probability in p0:
-                if probability != 0:
-                    total[0] += math.log(probability)
-                else:
-                    total[0] -= 1000
+                total[0] += math.log(probability)
             for probability in p1:
-                if probability != 0:
-                    total[1] += math.log(probability)
-                else:
-                    total[1] -= 1000
+                total[1] += math.log(probability)
 
             classes.append(0) if total[0] > total[1] else classes.append(1)
 
