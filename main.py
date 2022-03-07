@@ -13,7 +13,8 @@ import pandas as pd
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, \
+    accuracy_score, precision_score, recall_score
 from sklearn.svm import SVC
 
 
@@ -139,7 +140,7 @@ class NaiveBayes(Model):
     def __init__(self):
         super().__init__()
         self.test_probabilities = self.compute_probabilities()
-        self.test_classes = self.predict_classes()
+        self.test_predictions = self.predict_classes()
 
     def compute_probabilities(self):
         probabilities = [[], []]
@@ -193,22 +194,15 @@ def main():
 
     nb = NaiveBayes()
 
-    total = 0
-    correct = 0
-    for i, j in zip(nb.test_classes, nb.test_truth):
-        if i == j:
-            correct += 1
-        total += 1
-
-    print("Total:", total)
-    print("Right:", correct)
-    print("Accuracy:", correct/total)
+    print("Accuracy:", accuracy_score(nb.test_truth, nb.test_predictions))
+    print("Precision:", precision_score(nb.test_truth, nb.test_predictions))
+    print("Recall:", recall_score(nb.test_truth, nb.test_predictions))
 
     # create and display confusion matrix
     # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html
     clf = SVC(random_state=0)
-    clf.fit(nb.test_truth, nb.test_classes)
-    cm = confusion_matrix(nb.test_truth, nb.test_classes)
+    clf.fit(nb.test_truth, nb.test_predictions)
+    cm = confusion_matrix(nb.test_truth, nb.test_predictions)
     display = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=clf.classes_)
     display.plot(cmap="RdPu")
     plt.show()
