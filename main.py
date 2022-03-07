@@ -13,8 +13,8 @@ import pandas as pd
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, \
-    accuracy_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, \
+    confusion_matrix, ConfusionMatrixDisplay
 from sklearn.svm import SVC
 
 
@@ -184,21 +184,18 @@ class NaiveBayes(Model):
         return classes
 
 
-# "include […] your results:
-# "  the accuracy, precision, and recall on the test set,
-# "  as well as a confusion matrix for the test set.
-
-
 def main():
-    print("Program 2")
 
     nb = NaiveBayes()
 
+    # "include […] your results:
+    # "  the accuracy, precision, and recall on the test set,
     print("Accuracy:", accuracy_score(nb.test_truth, nb.test_predictions))
     print("Precision:", precision_score(nb.test_truth, nb.test_predictions))
     print("Recall:", recall_score(nb.test_truth, nb.test_predictions))
 
-    # create and display confusion matrix
+    # "  as well as a confusion matrix for the test set.
+    #
     # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html
     clf = SVC(random_state=0)
     clf.fit(nb.test_truth, nb.test_predictions)
