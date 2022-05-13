@@ -200,6 +200,15 @@ def main():
         precision += precision_score(nb.test_truth, nb.test_predictions)
         recall += recall_score(nb.test_truth, nb.test_predictions)
 
+        # figure out the accuracy I get with a standard library
+        # from sklearn.naive_bayes import GaussianNB
+        # gnb = GaussianNB()
+        # gnb.fit(nb.train, nb.train_truth)
+        # test_prediction = gnb.predict(nb.test)
+        # print("Accuracy computed using sklearn.naive_bayes:", accuracy_score(nb.test_truth, test_prediction), "\n")
+        #
+        # Mine is getting a slightly higher accuracy than this and I can't pinpoint why!
+
     accuracy /= loops
     precision /= loops
     recall /= loops
