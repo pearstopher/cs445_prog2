@@ -186,13 +186,29 @@ class NaiveBayes(Model):
 
 def main():
 
-    nb = NaiveBayes()
+    loops = 1
+    accuracy = 0
+    precision = 0
+    recall = 0
+    nb = None
+
+    for i in range(loops):
+        print(i+1)
+        nb = NaiveBayes()
+        accuracy += accuracy_score(nb.test_truth, nb.test_predictions)
+        precision += precision_score(nb.test_truth, nb.test_predictions)
+        recall += recall_score(nb.test_truth, nb.test_predictions)
+
+    accuracy /= loops
+    precision /= loops
+    recall /= loops
+
 
     # "include […] your results:
     # "  the accuracy, precision, and recall on the test set,
-    print("Accuracy:", accuracy_score(nb.test_truth, nb.test_predictions))
-    print("Precision:", precision_score(nb.test_truth, nb.test_predictions))
-    print("Recall:", recall_score(nb.test_truth, nb.test_predictions))
+    print("Accuracy:", accuracy)
+    print("Precision:", precision)
+    print("Recall:", recall)
 
     # "  as well as a confusion matrix for the test set.
     #
