@@ -203,7 +203,6 @@ def main():
     precision /= loops
     recall /= loops
 
-
     # "include […] your results:
     # "  the accuracy, precision, and recall on the test set,
     print("Accuracy:", accuracy)
