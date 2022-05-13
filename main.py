@@ -186,6 +186,7 @@ class NaiveBayes(Model):
 
 def main():
 
+    # increase the number of loops to compute average accuracy over a series of trials
     loops = 1
     accuracy = 0
     precision = 0
@@ -212,6 +213,8 @@ def main():
     # "  as well as a confusion matrix for the test set.
     #
     # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html
+    #
+    # (if you are running more than one loop, you will only get a CM for the last loop)
     clf = SVC(random_state=0)
     clf.fit(nb.test_truth, nb.test_predictions)
     cm = confusion_matrix(nb.test_truth, nb.test_predictions)
